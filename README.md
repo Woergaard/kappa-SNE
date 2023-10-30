@@ -1,5 +1,5 @@
 
-# $\kappa$-SNE: Kaniadakis-Gaussian Distributed Stochastic Neighbor Embedding 
+# κ-SNE: Kaniadakis-Gaussian Distributed Stochastic Neighbor Embedding 
 
 $\kappa$-SNE is a tool designed for the visualization of high-dimensional data. It operates by converting similarities between data points into joint probabilities and aims to minimize the Kullback-Leibler divergence between the joint probabilities of the low-dimensional embedding and the high-dimensional data.
 
