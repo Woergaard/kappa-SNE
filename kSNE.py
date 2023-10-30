@@ -182,7 +182,7 @@ def _kl_divergence(params, P, k, beta, n_samples, n_components,
     # pdist always returns double precision distances. Thus we need to take
     grad = np.ndarray((n_samples, n_components), dtype=params.dtype)
     
-    deriv = 1./(np.sqrt(1.+(k**2.)*(beta**2.)*(dist**2.)))
+    deriv = beta/(np.sqrt(1.+(k**2.)*(beta**2.)*(dist**2.)))
     
     PQd = squareform((P - Q)*deriv)
     for i in range(skip_num_points, n_samples):
@@ -313,7 +313,7 @@ def _gradient_descent(objective, p0, it, n_iter,
 
 class kSNE(BaseEstimator):
     """Kaniadakis-Gaussian distributed Stochastic Neighbor Embedding (k-SNE).
-    k-SNE is a tool to visualize high-dimensional data improved t-SNE. It converts
+    k-SNE is a tool to visualize high-dimensional data. It converts
     similarities between data points to joint probabilities and tries
     to minimize the Kullback-Leibler divergence between the joint
     probabilities of the low-dimensional embedding and the
@@ -416,7 +416,7 @@ class kSNE(BaseEstimator):
     _N_ITER_CHECK = 50
 
     @_deprecate_positional_args
-    def __init__(self, n_components=2, *, perplexity=30.0, k= 2.0, beta = 1.0, #0.5,
+    def __init__(self, n_components=2, *, perplexity=30.0, k= 0.7, beta = 1.0, #0.5,
                  early_exaggeration=12.0, learning_rate=200.0, n_iter=5000,
                  n_iter_without_progress=300, min_grad_norm=1e-7,
                  metric="euclidean", init="random", verbose=0,
@@ -438,6 +438,12 @@ class kSNE(BaseEstimator):
 
     def _fit(self, X, skip_num_points=0):
         """Private function to fit the model using X as training data."""
+        if self.learning_rate == "auto":
+            self.learning_rate_ = float(X.shape[0]) / float(self.early_exaggeration) / 4.0
+            self.learning_rate_ = float(np.maximum(self.learning_rate_, 50))
+        else:
+            self.learning_rate_ = self.learning_rate
+
 
         X = self._validate_data(X, accept_sparse=['csr', 'csc', 'coo'],
                                     dtype=[np.float32, np.float64])
@@ -528,7 +534,7 @@ class kSNE(BaseEstimator):
             "it": 0,
             "n_iter_check": self._N_ITER_CHECK,
             "min_grad_norm": self.min_grad_norm,
-            "learning_rate": self.learning_rate,
+            "learning_rate": self.learning_rate_,
             "verbose": self.verbose,
             "kwargs": dict(skip_num_points=skip_num_points),
             "args": [P, k, beta, n_samples, self.n_components],
