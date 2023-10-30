@@ -16,7 +16,7 @@ Ensure that you have Python 3 and pip installed on your system. You can then ins
 ```bash
 pip install -r requirements.txt
 ```
-
+ 
 ## Compiling Cython Code
 
 To compile the Cython code, run the following command:
